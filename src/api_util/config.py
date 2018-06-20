@@ -20,7 +20,7 @@ class Config(object):
     MONGO_HOST = os.getenv('DB_HOST')
     MONGO_PORT = os.getenv('DB_PORT')
     MONGO_DBNAME = os.getenv('DB_DATABASE')
-    # MONGO_URI = "mongodb://%s:%s/%s" % (MONGO_HOST, MONGO_PORT, MONGO_DBNAME)
+    MONGO_URI = "mongodb://%s:%s/%s" % (MONGO_HOST, MONGO_PORT, MONGO_DBNAME)
 
     # === Variáveis de ativacao do log
 
