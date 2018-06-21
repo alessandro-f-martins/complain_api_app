@@ -5,9 +5,21 @@ from api_util.http_codes import HTTP_CODES
 from api_main import api_db
 from pymongo import ReturnDocument
 
+_VALID_FIELDS = ['title', 'description', 'locale', 'company']
+_VALID_LOCALE_FIELDS = ['address', 'complement', 'vicinity',
+                        'zip', 'city', 'state', 'country']
+
 
 parser = reqparse.RequestParser()
 parser.add_argument('complain')
+parser.add_argument('title')
+parser.add_argument('description')
+parser.add_argument('address')
+parser.add_argument('vicinity')
+parser.add_argument('zip')
+parser.add_argument('city')
+parser.add_argument('state')
+parser.add_argument('company')
 
 log = Log()
 
@@ -15,14 +27,13 @@ log = Log()
 def _validate_fields(obj, complete=False):
     # VALID_FIELDS = ['title', 'description', 'locale', 'address',
     # 'complement', 'zip', 'city', 'state', 'country', 'company']
-    VALID_FIELDS = ['title', 'description', 'locale', 'company']
 
     for field in obj:
-        if field not in VALID_FIELDS:
+        if field not in _VALID_FIELDS:
             abort(HTTP_CODES['Bad Request'],
                   message="Field '%s' is incorrect" % field)
 
-    if complete and len(obj) != len(VALID_FIELDS):
+    if complete and len(obj) != len(_VALID_FIELDS):
         abort(HTTP_CODES['Bad Request'],
               message="Field list is incomplete: %d" % len(obj))
 
@@ -91,8 +102,32 @@ class ComplainList(Resource):
     '''
     def get(self):
         ret = []
-        for result in api_db.db.complains.find({}, projection={'_id': False}):
+        args = parser.parse_args()
+        query_dict = {}
+        del args['complain']
+
+# TODO: REMOVER DEPOIS: como referencia:
+# Query com AND:
+# db.complains.find({$and: [{"locale.city" : "Campinas"},
+# {"title": "Reclamacao 5"}, { "complain_id" : 5}]})
+# Query com wildcard:
+# db.complains.find({"company" : /.*Alca.*/})
+# O exemplo abaixo funciona com PyMongo:
+# db.complains.find({"company":{"$regex": "Alca"}})
+
+        for arg in args:
+            if args[arg]:
+                if arg in _VALID_LOCALE_FIELDS:
+                    # query_dict['locale.' + arg] = args[arg]
+                    query_dict['locale.' + arg] = {'$regex': args[arg]}
+                else:
+                    # query_dict[arg] = args[arg]
+                    query_dict[arg] = {'$regex': args[arg]}
+
+        for result in api_db.db.complains.find(query_dict,
+                                               projection={'_id': False}):
             ret.append(result)
+
         log.log_msg('Reclamacoes obtidas: %s' % ret)
         return ret
 
