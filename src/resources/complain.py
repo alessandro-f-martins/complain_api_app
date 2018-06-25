@@ -1,18 +1,21 @@
 import re
-from math import radians
 import json
 from flask_restful import abort, Resource, reqparse
-from api_util import Log, HTTP_CODES, get_geolocation
-from api_main import api_db
 from pymongo import ReturnDocument
+from api_util import api_log, http_codes
+from api_util.geocode import insert_geoloc_info, nearby_complains_query
+from api_main import api_db
+
 
 _VALID_FIELDS = ('title', 'description', 'locale', 'company')
 _VALID_LOCALE_FIELDS = ('address', 'complement', 'vicinity',
                         'zip', 'city', 'state', 'country')
-_USE_GEOLOC = True
 
 parser = reqparse.RequestParser()
 parser.add_argument('complain')
+parser.add_argument('id')
+parser.add_argument('within_radius')
+
 
 for field in _VALID_FIELDS:
     if field != 'locale':
@@ -24,8 +27,8 @@ for field in _VALID_LOCALE_FIELDS:
         parser.add_argument(field)
         parser.add_argument(field + '_like')
 
-
-log = Log()
+log = api_log.Log()
+HTTP_CODES = http_codes.HTTP_CODES
 
 
 def _validate_fields(obj, complete=False):
@@ -53,27 +56,14 @@ def _validate_fields(obj, complete=False):
         if error_msg:
             abort(HTTP_CODES['Bad Request'], message=error_msg)
 
-# TODO: refatorar para o modulo api_util.geoloc
-def _insert_geoloc_info(complain_obj):
-    if _USE_GEOLOC:
-            geo_location = get_geolocation(
-                ', '.join((complain_obj['locale'].get('address'),
-                           complain_obj['locale'].get('city'),
-                           complain_obj['locale'].get('state'),
-                           complain_obj['locale'].get('country'))
-                          ))
-            geoJSON = {'type': 'Point',
-                       'coordinates': [radians(geo_location['lng']),
-                                       radians(geo_location['lat'])]}
-            complain_obj['locale']['geo_location'] = geoJSON
-
 
 class Complain(Resource):
     ''' Complain: classe principal de dados de reclamacoes
     '''
     def get(self, complain_id):
         ret = api_db.db.complains.find_one(
-            {'complain_id': complain_id}, projection={'_id': False})
+            {'complain_id': complain_id},
+            projection={'_id': False, 'locale.geo_location': False})
         if not ret:
             abort(HTTP_CODES['Not Found'],
                   message='Complain %s not found' % complain_id)
@@ -84,7 +74,7 @@ class Complain(Resource):
     def put(self, complain_id):
         complain_args = json.loads(parser.parse_args()['complain'])
         _validate_fields(complain_args, True)
-        _insert_geoloc_info(complain_args)
+        insert_geoloc_info(complain_args)
         complain_to_replace = {'complain_id': complain_id}
         complain_to_replace.update(complain_args)
         result = api_db.db.complains.replace_one(
@@ -108,7 +98,7 @@ class Complain(Resource):
         complain_patches = json.loads(parser.parse_args()['complain'])
         _validate_fields(complain_patches)
         if 'locale' in complain_patches:
-            _insert_geoloc_info(complain_patches)
+            insert_geoloc_info(complain_patches)
         result = api_db.db.complains.update_one(
             {'complain_id': complain_id},
             {'$set': complain_patches})
@@ -146,6 +136,8 @@ class ComplainList(Resource):
         valid_get_args.remove('locale')
         valid_get_args.remove('complement_like')
         valid_get_args.remove('locale_like')
+        valid_get_args.append('id')
+        valid_get_args.append('within_radius')
 
         return like_fields, locale_fields, valid_get_args
 
@@ -161,24 +153,34 @@ class ComplainList(Resource):
                 abort(HTTP_CODES['Bad Request'],
                       message='Invalid query string.')
 
-        for arg in args:
-            if args[arg]:
-                query_key = arg.split('_')[0]
-                if arg in locale_fields:
-                    query_key = 'locale.' + query_key
-                if arg in like_fields:
-                    query_condition = re.compile(args[arg], re.IGNORECASE)
-                else:
-                    query_condition = args[arg]
+        radius = args['within_radius']
+        id = args['id']
 
-                query_dict['$and'].append({query_key: query_condition})
+        if radius and id:
+            query_dict = nearby_complains_query(id, radius)
+        else:
+            for arg in args:
+                if args[arg]:
+                    query_key = arg.split('_')[0]
+                    if arg in locale_fields:
+                        query_key = 'locale.' + query_key
+                    if arg in like_fields:
+                        query_condition = re.compile(args[arg], re.IGNORECASE)
+                    else:
+                        query_condition = args[arg]
 
-        if not query_dict['$and']:
-            query_dict = {}
+                    query_dict['$and'].append({query_key: query_condition})
 
-        for result in api_db.db.complains.find(query_dict,
-                                               projection={'_id': False}):
-            ret.append(result)
+            if not query_dict['$and']:
+                query_dict = {}
+
+        for result in api_db.db.complains.find(
+                query_dict, projection={'_id': False,
+                                        'locale.geo_location': False}):
+            if not id:
+                ret.append(result)
+            elif result['complain_id'] != int(id):
+                ret.append(result)
 
         log.log_msg('Reclamacoes obtidas: %s' % ret)
         return ret
@@ -186,7 +188,7 @@ class ComplainList(Resource):
     def post(self):
         new_complain_args = json.loads(parser.parse_args()['complain'])
         _validate_fields(new_complain_args, True)
-        _insert_geoloc_info(new_complain_args)
+        insert_geoloc_info(new_complain_args)
         new_complain_id = api_db.db.complains_seq.find_one_and_update(
             filter={'_id': 'complain_id'},
             update={'$inc': {'seq_value': 1}},

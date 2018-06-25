@@ -26,3 +26,6 @@ class Config(object):
 
     API_LOG_ACTIVE = (os.getenv('API_LOG_ACTIVE', '0') == '1')
     API_LOG_FILE = os.getenv('API_LOG_FILE')
+
+    USE_GEOLOC = (os.getenv('USE_GEOLOC', '0') == '1')
+    GKEY = 'AIzaSyDRnUVxmIT4uvWEUs_WNBeQBwnZZP5TV6U'

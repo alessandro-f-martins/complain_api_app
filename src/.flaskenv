@@ -12,5 +12,11 @@ DB_HOST=localhost
 DB_PORT=27017
 DB_DATABASE=complain_db
 
+# === Variáveis de ativacao do log
+
+
 API_LOG_FILE=${VIRTUAL_ENV}/../dev/log/api-log.log
 API_LOG_ACTIVE=1
+
+# === Variáveis de ativacao da geolocalizacao
+USE_GEOLOC=1
