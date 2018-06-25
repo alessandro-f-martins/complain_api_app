@@ -1,4 +1,4 @@
-from api_main import app, api, api_db
+from api_main import application, api, api_db
 from resources.complain import Complain, ComplainList
 from pymongo import GEOSPHERE
 
@@ -7,7 +7,7 @@ api.add_resource(ComplainList, '/complain')
 api.add_resource(Complain, '/complain/<int:complain_id>')
 
 
-@app.before_first_request
+@application.before_first_request
 def before_first_request():
     ''' Preparacao da base de dados, antes do primeiro request
     '''
@@ -19,4 +19,4 @@ def before_first_request():
 
 
 if __name__ == '__main__':
-    app.run()
+    application.run()

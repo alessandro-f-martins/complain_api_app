@@ -1,1 +1,4 @@
-from api_main import app
+from api_main import application
+
+if __name__ == "__main__":
+    application.run()
