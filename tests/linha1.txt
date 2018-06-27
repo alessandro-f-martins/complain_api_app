@@ -1,0 +1,14 @@
+complain={
+  "title" : "Reclamacao 1",
+  "description" : "Eu sou a primeira reclamacao",
+  "locale" : {
+    "address": "Rua Mangaratu, 291",
+    "complement": "",
+    "vicinity": "Casa Verde",
+    "zip": "02514-030",
+    "city": "São Paulo",
+    "state": "SP",
+    "country": "Brasil"
+  },
+  "company" : "Casa Giovani"
+}

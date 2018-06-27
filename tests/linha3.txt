@@ -1,0 +1,14 @@
+complain={
+  "title" : "Reclamacao 3",
+  "description" : "Eu sou a terceira reclamacao",
+  "locale" : {
+    "address": "Av. Brás Leme, 2500",
+    "complement": "",
+    "vicinity": "Santana",
+    "zip": "02022-020",
+    "city": "São Paulo",
+    "state": "SP",
+    "country": "Brasil"
+  },
+  "company" : "Santana Inc."
+} 

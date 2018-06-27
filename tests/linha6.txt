@@ -1,0 +1,14 @@
+complain={
+    "title" : "Reclamacao 6",
+    "description" : "Eu sou a quinta reclamacao",
+    "locale" : {
+      "address": "R. Horácio Leonardi, 62",
+      "complement": "apto. 92",
+      "vicinity": "Barão Geraldo",
+      "zip": "13085-560",
+      "city": "Campinas",
+      "state": "SP",
+      "country": "Brasil"
+    },
+    "company" : "República Ed. Maria Emília"
+}

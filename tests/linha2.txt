@@ -1,0 +1,14 @@
+complain={
+  "title" : "Reclamacao 2",
+    "description" : "Eu sou a segunda reclamacao",
+    "locale" : {
+      "address": "Rua Onda Verde, 15",
+      "complement": "",
+      "vicinity": "Casa Verde",
+      "zip": "02514-020",
+      "city": "São Paulo",
+      "state": "SP",
+      "country": "Brasil"
+    },
+    "company" : "Casa Alessandro"
+}

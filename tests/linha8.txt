@@ -1,0 +1,14 @@
+complain={
+    "title" : "Reclamacao 8",
+    "description" : "Eu sou a oitava reclamacao",
+    "locale" : {
+      "address": "R. Dr. Alfredo Antonio Martinelli, 64",
+      "complement": "",
+      "vicinity": "Cidade Universitária 2",
+      "zip": "13083-330",
+      "city": "Campinas",
+      "state": "SP",
+      "country": "Brasil"
+    },
+    "company" : "Republica Giovani"
+}

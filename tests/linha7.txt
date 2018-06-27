@@ -1,0 +1,14 @@
+complain={
+    "title" : "Reclamacao 7",
+    "description" : "Eu sou a sétima reclamacao",
+    "locale" : {
+      "address": "R. Des. Antão de Moraes, 292",
+      "complement": "",
+      "vicinity": "Cidade Universitária",
+      "zip": "13083-310",
+      "city": "Campinas",
+      "state": "SP",
+      "country": "Brasil"
+    },
+    "company" : "Pensão Itália"
+}

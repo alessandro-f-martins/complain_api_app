@@ -1,5 +1,8 @@
 log/
 __pycache__/
 *.pyc
-db/
+src/db/data
+src/db/log
+src/log
+src/http/*.log
 tags
