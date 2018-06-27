@@ -1,0 +1,14 @@
+complain={
+  "title" : "Reclamacao 9",
+  "description" : "Eu sou a nona reclamacao",
+  "locale" : {
+    "address": "Rua Conselheiro Justino, 1080",
+    "complement": "",
+    "vicinity": "Bairro Campestre",
+    "zip": "09070-580",
+    "city": "Santo André",
+    "state": "SP",
+    "country": "Brasil"
+  },
+  "company" : "Casa Santo André 1"
+}

@@ -1,0 +1,15 @@
+complain={
+  "title" : "Reclamacao 10",
+  "description" : "Eu sou a décima reclamacao",
+  "locale" : {
+    "address": "Rua João Ribeiro, 10",
+    "complement": "apto. 03",
+    "vicinity": "Bairro Campestre",
+    "zip": "09070-250",
+    "city": "Santo André",
+    "state": "SP",
+    "country": "Brasil"
+  },
+  "company" : "Casa Santo André 2"
+}
+

@@ -1,3 +1,9 @@
+'''
+--- Complain API microservice application ---
+Author: Alessandro Martins
+Package initialization: api_main.__init__
+Description: initializes the api_main package.
+'''
 from flask import Flask
 from flask_restful import Api
 from flask_pymongo import PyMongo
