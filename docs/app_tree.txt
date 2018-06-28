@@ -1,0 +1,48 @@
+.
+├── docs/
+│   ├── challenge.md
+│   └── README.md
+├── src/
+│   ├── app_vars.cfg
+│   ├── closeApp.sh
+│   ├── runApp.sh
+│   ├── Dockerfile
+│   ├── api_main/
+│   │   ├── api_main_app.py
+│   │   ├── api_routes.py
+│   │   └──__init__.py
+│   ├── api_util/
+│   │   ├── api_log.py
+│   │   ├── config.py
+│   │   ├── geocode.py
+│   │   ├── http_codes.py
+│   │   └── __init__.py
+│   ├── db/
+│   │   ├── data/
+│   │   ├── init/
+│   │   │   └── mongod.conf
+│   │   └── log/
+│   ├── http/
+│   │   └── nginx.conf
+│   ├── log/
+│   ├── requirements.txt
+│   └── resources/
+│       ├── complain.py
+│       └── __init__.py
+└── tests/
+    ├── entry10.txt
+    ├── entry1.txt
+    ├── entry2.txt
+    ├── entry3.txt
+    ├── entry4.txt
+    ├── entry5.txt
+    ├── entry6.txt
+    ├── entry7.txt
+    ├── entry8.txt
+    ├── entry9_1.txt
+    ├── entry9.txt
+    ├── test_delete.sh
+    ├── testscript_reads.sh
+    └── testscript.sh
+
+18 directories, 78 files

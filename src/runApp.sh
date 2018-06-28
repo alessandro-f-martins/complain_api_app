@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# . ./app_vars.cfg
+. ./app_vars.cfg
 # . ../../venv/bin/activate
 mongod --config $APP_DIR/db/init/mongod.conf &
 nginx -c $APP_DIR/http/nginx.conf
