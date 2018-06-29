@@ -140,7 +140,7 @@ The *complaint* JSON document has the following format:
 	"complain_id" : 1,
 	"title" : "string",
 	"description" : "string",
-    "locale" : {
+	"locale" : {
 		"address" : "string",
 		"complement" : "string",
 		"vicinity" : "string",
@@ -189,18 +189,18 @@ For reference, here is the content of a *new_entry.txt* file, as used by the *PU
 
    ```json
 complain={
- "title" : "Complaint 4",
- "description" : "I am the fourth complaint",
- "locale" : {
-   "address": "Av. Paulista, 1500",
-   "complement": "3rd floor, room 345",
-   "vicinity": "Bela Vista",
-   "zip": "01310-100",
-   "city": "São Paulo",
-   "state": "SP",
-   "country": "Brazil"
- },
- "company" : "Damage Inc."
+	"title" : "Complaint 4",
+	"description" : "I am the fourth complaint",
+	"locale" : {
+		"address": "Av. Paulista, 1500",
+		"complement": "3rd floor, room 345",
+		"vicinity": "Bela Vista",
+		"zip": "01310-100",
+		"city": "São Paulo",
+		"state": "SP",
+		"country": "Brazil"
+	},
+	"company" : "Damage Inc."
 }
    ```
 
@@ -253,13 +253,13 @@ When retrieving the [longitude, latitude] values of a query, Google Maps API tri
 
 ```json
 locale: {
-  "address": "xxxx",
-  "complement": "",
-  "vicinity": "Morumbi",
-  "zip": "12345-123",
-  "city": "São Paulo",
-  "state": "SP",
-  "country": "Brasil"
+      "address": "xxxx",
+      "complement": "",
+      "vicinity": "Morumbi",
+      "zip": "12345-123",
+      "city": "São Paulo",
+      "state": "SP",
+      "country": "Brasil"
 }
 ```
 
@@ -273,13 +273,13 @@ If all relevant query attributes are incorrect, the result is a spurious, but sy
 
 ```json
 locale: {
-  "address": "xxxx",
-  "complement": "",
-  "vicinity": "Morumbi",
-  "zip": "12345-123",
-  "city": "xxxxx",
-  "state": "xxxx",
-  "country": "xxxx"
+      "address": "xxxx",
+      "complement": "",
+      "vicinity": "Morumbi",
+      "zip": "12345-123",
+      "city": "xxxxx",
+      "state": "xxxx",
+      "country": "xxxx"
 }
 ```
 
@@ -322,12 +322,9 @@ There are still some functionalities we wish to improve further:
 
 ----
 
-
-
 [geojson_link]:http://geojson.org/
 [github_link]:https://github.com/alessandro-f-martins/complaint_api_app
 [postman_link]:https://www.getpostman.com/apps
 [flask-restful_link]:https://flask-restful.readthedocs.io/en/latest/
 [flask-pymongo_link]:http://flask-pymongo.readthedocs.io/en/latest/
-
 [dockerhub_link]:https://hub.docker.com/r/afmartins/complain_api_app/
