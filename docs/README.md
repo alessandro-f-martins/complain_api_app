@@ -316,8 +316,6 @@ There are still some functionalities we wish to improve further:
 - Allow modification of *locale* single attributes when using *PATCH* method.
 - Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Services with Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data. Please feel free to change the provided *Dockerfile* accordingly.
 
-
-
 ----
 
 
