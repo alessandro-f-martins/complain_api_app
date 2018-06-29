@@ -45,4 +45,3 @@
     ├── testscript_reads.sh
     └── testscript.sh
 
-18 directories, 78 files
