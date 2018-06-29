@@ -6,7 +6,7 @@ Version: 0.1b
 
 ## Introduction
 
-This is an application for submission to Reclame Aqui, which consists on a simple Restful API application to manage complaints, which includes:
+This is an application for submission to ***Reclame Aqui,*** which consists on a simple Restful API application to manage complaints, which includes:
 
 - Full CRUD capabilities: create, read, update and delete complaints
 - Three search modes for the GET method: exact match, "*like*" match (using parts of the desired attribute value, case insensitive) and distance range search
@@ -19,17 +19,22 @@ This is an application for submission to Reclame Aqui, which consists on a simpl
 
 ## Installation
 
-### Prerequisites:
+### Prerequisites
 
 The following software was used in the elaboration of this application: 
 
-- Python 3.6 (the application was built and tested with Python 3.6.5)
+- Python 3.6.5
 - pip 10.0.1
-- virtualenv 16.0.0
-- MongoDB 3.4.1
 - Nginx 1.14.0
+- virtualenv 16.0.0 (plain version) 
+- MongoDB 3.6.5 (plain version) and 3.4.1 (dockerized version)
+- Linux: Ubuntu 18.01 (plain version) and Alpine 3.7 (dockerized version)
 
-### Installation steps:
+Python packages versions used in Complant API application can be found in the *requirements.txt* file. 
+
+
+
+### Installation steps
 
 1. Clone this repository to a working directory (let's say, _app_dir_):  
 
@@ -39,7 +44,7 @@ The following software was used in the elaboration of this application:
   $ git clone https://github.com/alessandro-f-martins/complaint_api_app .
   ```
 
-2. Create a Python virtual environment for this project (please refer to any related tutorials on the Internet. There is a number of ways to organize virtual environments, which depend on system organization, please feel free to choose the one which is best for you).
+2. Create a Python virtual environment for this project (please refer to any related tutorials on the Internet. There is a number of ways to organize virtual environments, which depend on system organization, so please feel free to choose the one which is best for you).
 
 3. Install the needed Python packages using the provided `requirements.txt`:
 
@@ -81,6 +86,30 @@ The following software was used in the elaboration of this application:
    $ sudo ./closeApp.sh
    ```
 
+
+
+### Configuration
+
+*Complaint API Application* configuration is done in two ways:
+
+- in the plain version: in the *app_vars.cfg* file
+- in the dockerized version: in the *ENV* section of *Dockerfile*
+
+The file holds configuration environment variables for the Flask and MongoDB subsystems and for the application itself.
+
+
+
+### Logging
+
+You can activate/deactivate application logging in the configuration files (please see *Configuration*):
+
+```bash
+export API_LOG_FILE=$LOG_DIR/api-log.log
+export API_LOG_ACTIVE=1 # --> change it to 0 to deactivate logging
+```
+
+
+
 ### Testing
 
 There are some examples of testing data in the `app_dir/tests` directory. They can be run using the `testscript.sh` curl-based Bash script:  
@@ -93,104 +122,141 @@ During development, [Postman][postman_link] was used for ease of operation. Plea
 
 ## About the application  
 
+
+
 ### The API Routing and Data Engine
 
 The Complaint API application is based upon *Flask* and *Flask-RESTful* frameworks to provide all the underpinnings of request routing, HTTP method association, argument parsing and REST object manipulation. For more details, please refer to [Flask-RESTful website][flask-restful_link].
 
 [Flask-PyMongo][flask-pymongo_link] was also used for providing connectivity to the MongoDB database.
 
-### The *Complaint* Document format
+
+
+### The *Complaint* document format
 
 The *complaint* JSON document has the following format:
 ```json
 {
-    "complain_id" : <int>,
-	"title" : <string>,
-	"description" : <string>,
+	"complain_id" : 1,
+	"title" : "string",
+	"description" : "string",
     "locale" : {
-		"address" : <string>,
-		"complement" : <string>,
-		"vicinity" : <string>,
-		"zip" : <string>,
-		"city" : <string>,
-		"state" : <string>,
-		"country" : <string>,
+		"address" : "string",
+		"complement" : "string",
+		"vicinity" : "string",
+		"zip" : "string",
+		"city" : "string",
+		"state" : "string",
+		"country" : "string",
 		"geo_location" : {
 			"type" : "Point",
-			"coordinates" : [
-				<float>,
-				<float>
-			]
+			"coordinates" : [0.0, 0.0]  # float(longitude), float(latitude)
 		}
 	},
-	"company" : <string>,
+	"company" : "string"
 }
 ```
-Two things to mention about the `locale.geo_location` attribute:
+Two points to mention about the `locale.geo_location` attribute:
 - Its type is *GeoJSON*, a format used for encoding a variety of geographic data structures. For more information, please refer to [GeoJSON.org][geojson_link].
-- The document shown above is how it is stored in the MongoDB database. It is omitted in any REST operations, as they are produced and stored for geolocation purposes only (see *Working with Geolocation and Distance Range queries*).
+- The document shown above is how it is stored in the MongoDB database. It is omitted in any REST operations, as they are produced and stored for geolocation purposes only (see *Working with Geolocation* section).
+
+
 
 ### The *complain* module and REST functionalities
 
-The *complain* module, under the *resources* package, contains the definitions of the `Complain` and `ComplainList` classes. The first one contains methods for handling URIs which are related to a single complaint object, and therefore have the *id* of this object as its last part:
+The *complain* module, under the *resources* package, contains the definitions of the `Complain` and `ComplainList` classes. The first one contains methods for handling URIs which are related to a single, unique complaint object, and therefore have the *id* of this object as its last part:
    ```bash
-   $ curl http://myserver/complain/5   # HTTP GET: Retrieves complaint object whose id is 5
+$ curl http://myserver/complain/5   # HTTP GET: Retrieves complaint object whose id is 5
 
-   $ curl -X DELETE http://myserver/complain/9   # HTTP DELETE: Removes complaint object whose id is 9
+$ curl -X DELETE http://myserver/complain/9   # HTTP DELETE: Removes complaint object whose id is 9
 
-   $ curl -d 'complain={"company":"Umbrella%20Corp."}' -X PATCH \ http://localhost/complain/5 # HTTP PATCH: Modifies the company attribute of complaint object whose id is 5
+$ curl -d 'complain={"company":"Umbrella%20Corp."}' -X PATCH \ http://localhost/complain/5 # HTTP PATCH: Modifies the company attribute of complaint object whose id is 5
 
-   $ curl -d "@new_entry.txt" -X PUT http://localhost/complain/3  # HTTP PUT: Replaces the whole content of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
+$ curl -d "@new_entry.txt" -X PUT http://localhost/complain/3  # HTTP PUT: Replaces the whole content of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
    ```
 The second class (`ComplainList`) contains methods for handling URIs which don't relate to a specific object, either potentially bringing a complete list of complaint documents in the database, a list that match a query string, or creating a new object with a system-assigned *id*:
 
    ```bash
-   $ curl -d "@new_entry.txt" -X POST http://localhost/complain  # HTTP POST: Replaces the whole content the company attribute of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
+$ curl -d "@new_entry.txt" -X POST http://localhost/complain  # HTTP POST: Replaces the whole content the company attribute of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
 
-   $ curl http://localhost/complain?title=Complain%201 # HTTP GET: Retrieving complaints whose 'title' attribute matches "Complain 1" exactly (whole text, case sensitive)
+$ curl http://localhost/complain # HTTP GET: Retrieves all complaints in the database
 
-   $ curl http://localhost/complain?city_like=Paulo # HTTP GET: Retrieves complaints made in a city which contains "Paulo" in its name (case insensitive)
+$ curl http://localhost/complain?title=Complain%201 # HTTP GET: Retrieves complaints whose 'title' attribute matches "Complain 1" exactly (whole text, case sensitive)
+
+$ curl http://localhost/complain?city_like=paulo # HTTP GET: Retrieves complaints made in a city which contains "paulo" in its name (partial text, case insensitive)
    ```
-For reference, here is a content for a *new_entry.txt* file, as used by the *PUT* and *POST* examples above:
+For reference, here is the content of a *new_entry.txt* file, as used by the *PUT* and *POST* examples above:
 
    ```json
-   complain={
-     "title" : "Complaint 4",
-     "description" : "I am the fourth complaint",
-     "locale" : {
-       "address": "Av. Paulista, 1500",
-       "complement": "3rd floor, room 345",
-       "vicinity": "Bela Vista",
-       "zip": "01310-100",
-       "city": "São Paulo",
-       "state": "SP",
-       "country": "Brazil"
-     },
-     "company" : "Damage Inc."
-   }
+complain={
+ "title" : "Complaint 4",
+ "description" : "I am the fourth complaint",
+ "locale" : {
+   "address": "Av. Paulista, 1500",
+   "complement": "3rd floor, room 345",
+   "vicinity": "Bela Vista",
+   "zip": "01310-100",
+   "city": "São Paulo",
+   "state": "SP",
+   "country": "Brazil"
+ },
+ "company" : "Damage Inc."
+}
    ```
 
 
 
-Of course, these are `curl`-based examples of usage, and the user should call the API methods according to the REST conventions of the client language or application.
+Of course, these are `curl`-based usage examples, and the user should call the API methods according to the REST conventions of the client language or application.
+
+
 
 ### Querying with the GET method
 
-asdasdasdsad
+As mentioned, there are three query modes that can be made with the query string-using GET method:
 
-### Working with Geolocation and Distance Range queries
+- *Exact match queries*: using the name of any attribute directly in the search query string
 
-sadasdsad
+- *"like" queries*: appending "\_like" to the name of any attribute the search query string
+
+- *Distance Range Search queries*: using the following query string fields:
+
+  - *id*: id of the complaint to be queried
+
+  - *within_radius*: radius in *meters* (range) where to look for other complaints
+
+  Therefore, the following REST method call:
+  ```bash
+     $ curl http://localhost/complain?id=5&within_radius=3000
+  ```
+  returns all complaints that were made within a 3km-radius from where the complaint whose id is 5 was issued (excluding complaint #5).
+
+Please refer to *The complain module and REST functionalities* section for usage examples.
+
+### Working with Geolocation
+
+*Complaint API Application* uses Google Maps API to get the geographic coordinates of a complaint and, as such, relies on the availability of this service to provide this functionality.
+
+The latitude and longitude values are obtained from a concatenation of the *locale.address* , *locale.city*, *locale.state* and , *locale.country* attributes, so they are the only relevant ones for geolocation determination. 
+
+You can activate/deactivate the geolocation functionality in the configuration files (please see *Configuration*):
+
+```bash
+export USE_GEOLOC=1  # --> change it to 0 to deactivate geolocation
+```
+**_NOTE_**: in the present version, modifying any *locale* attribute requires the whole *locale* sub-document to be rewritten and sent (see *Under work* section).
 
 
 
 ### Dockerized version
 
-
+An example Docker image of the application is provided in [Docker Hub][dockerhub_link]:
 
 ```bash
+$ docker pull afmartins/complain_api_app
 $ docker run -p80:80 afmartins/complain_api_app
 ```
+
+This image was built using the provided *Dockerfile*. It is self-contained for testing purposes only, as it is not currently using Docker Volumes for data persistence and sharing among Docker instances (Services). (see *Under Work* section).
 
 
 
@@ -198,8 +264,9 @@ $ docker run -p80:80 afmartins/complain_api_app
 
 There are still some functionalities we wish to improve further:
 
-- Include attributes such *created_at: <timestamp>* and *complainer_name: <string>*
-- Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data.
+- Include attributes such *created_at: <timestamp>* and *complainer_name: <string>*.
+- Allow modification of *locale* single attributes when using *PATCH* method.
+- Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Services with Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data. Please feel free to change the provided *Dockerfile* accordingly.
 
 
 
@@ -214,4 +281,4 @@ There are still some functionalities we wish to improve further:
 [flask-restful_link]:https://flask-restful.readthedocs.io/en/latest/
 [flask-pymongo_link]:http://flask-pymongo.readthedocs.io/en/latest/
 
-[flas]: 
+[dockerhub_link]:https://hub.docker.com/r/afmartins/complain_api_app/
