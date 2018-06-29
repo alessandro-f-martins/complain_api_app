@@ -49,31 +49,33 @@ The following software was used in the elaboration of this application:
 
 4. Modify the following configuration files. They contain references to the docker internal directory structure (`/usr/src/app` for the main application directory), and should be changed for running in your environment:
 
-   - `src/app_vars.cfg`:
+   - `app_vars.cfg`:
      ```bash
-     line 1: # . ../../venv/bin/activate --> change it to point to the 'activate' script of your virtual environment 
+     line 1: # . ../../venv/bin/activate # --> change it to point to the 'activate' script of your virtual environment 
      ```
-   - `src/runApp.sh`:
+   - `runApp.sh`:
      ```bash
-     line 2: export APP_DIR=/usr/src/app --> change it to point to your app_dir
+     line 2: export APP_DIR=/usr/src/app # --> change it to point to your app_dir
      ```
-   - `src/http/nginx.conf`:
+   - `http/nginx.conf`:
      ```bash
-     line 2: pid /usr/src/app/http/nginx.pid; --> change it to point to your app_dir
-     line 41: access_log /usr/src/app/http/access.log; --> change it to point to your app_dir
-     line 42: error_log  /usr/src/app/http/error.log --> change it to point to your app_dir
+     line 2: pid /usr/src/app/http/nginx.pid; # --> change it to point to your app_dir
+     line 41: access_log /usr/src/app/http/access.log; # --> change it to point to your app_dir
+     line 42: error_log  /usr/src/app/http/error.log # --> change it to point to your app_dir
      ```
-   - `src/db/init/mongod.conf`:
+   - `db/init/mongod.conf`:
      ```bash
-     line 3:    path: "/usr/src/app/db/log/mongod.log" --> change it to point to your app_dir
-     line 9:    dbPath: "/usr/src/app/db/data" --> change it to point to your app_dir
+     line 3:    path: "/usr/src/app/db/log/mongod.log" # --> change it to point to your app_dir
+     line 9:    dbPath: "/usr/src/app/db/data" # --> change it to point to your app_dir
      ```
 
-5. Go to the `src/` directory and run the application with `sudo`:
+5. Go to the *api_dir* directory and run the application with `sudo`:
    ```bash
-   $ cd src
-   $ sudo ./runApp.sh
+   $ cd app_dir
+   $ sudo ./runApp.sh &
    ```
+   Once running, the server listens on HTTP port 80.
+
 6. To deactivate the application, run `closeApp.sh` with `sudo`:
    ```bash
    $ sudo ./closeApp.sh
@@ -81,7 +83,7 @@ The following software was used in the elaboration of this application:
 
 ### Testing
 
-There are some examples of testing data in the `app_dir/tests`directory. They can be run using the `testscript.sh` curl-based Bash script:  
+There are some examples of testing data in the `app_dir/tests` directory. They can be run using the `testscript.sh` curl-based Bash script:  
 ```bash
 $ ./testscript.sh
 ```
@@ -97,25 +99,98 @@ The Complaint API application is based upon *Flask* and *Flask-RESTful* framewor
 
 [Flask-PyMongo][flask-pymongo_link] was also used for providing connectivity to the MongoDB database.
 
-### The *complain* module
+### The *Complaint* Document format
 
-asdasdasd
+The *complaint* JSON document has the following format:
+```json
+{
+    "complain_id" : <int>,
+	"title" : <string>,
+	"description" : <string>,
+    "locale" : {
+		"address" : <string>,
+		"complement" : <string>,
+		"vicinity" : <string>,
+		"zip" : <string>,
+		"city" : <string>,
+		"state" : <string>,
+		"country" : <string>,
+		"geo_location" : {
+			"type" : "Point",
+			"coordinates" : [
+				<float>,
+				<float>
+			]
+		}
+	},
+	"company" : <string>,
+}
+```
+Two things to mention about the `locale.geo_location` attribute:
+- Its type is *GeoJSON*, a format used for encoding a variety of geographic data structures. For more information, please refer to [GeoJSON.org][geojson_link].
+- The document shown above is how it is stored in the MongoDB database. It is omitted in any REST operations, as they are produced and stored for geolocation purposes only (see *Working with Geolocation and Distance Range queries*).
 
-### REST functionalities
+### The *complain* module and REST functionalities
 
-asdasdsadasd
+The *complain* module, under the *resources* package, contains the definitions of the `Complain` and `ComplainList` classes. The first one contains methods for handling URIs which are related to a single complaint object, and therefore have the *id* of this object as its last part:
+   ```bash
+   $ curl http://myserver/complain/5   # HTTP GET: Retrieves complaint object whose id is 5
 
-### Working with Geolocation and Distance Range queries
+   $ curl -X DELETE http://myserver/complain/9   # HTTP DELETE: Removes complaint object whose id is 9
 
-sadasdsad
+   $ curl -d 'complain={"company":"Umbrella%20Corp."}' -X PATCH \ http://localhost/complain/5 # HTTP PATCH: Modifies the company attribute of complaint object whose id is 5
+
+   $ curl -d "@new_entry.txt" -X PUT http://localhost/complain/3  # HTTP PUT: Replaces the whole content of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
+   ```
+The second class (`ComplainList`) contains methods for handling URIs which don't relate to a specific object, either potentially bringing a complete list of complaint documents in the database, a list that match a query string, or creating a new object with a system-assigned *id*:
+
+   ```bash
+   $ curl -d "@new_entry.txt" -X POST http://localhost/complain  # HTTP POST: Replaces the whole content the company attribute of complaint object whose id is 3 by the complain document contained in file "new_entry.txt" (see below)
+
+   $ curl http://localhost/complain?title=Complain%201 # HTTP GET: Retrieving complaints whose 'title' attribute matches "Complain 1" exactly (whole text, case sensitive)
+
+   $ curl http://localhost/complain?city_like=Paulo # HTTP GET: Retrieves complaints made in a city which contains "Paulo" in its name (case insensitive)
+   ```
+For reference, here is a content for a *new_entry.txt* file, as used by the *PUT* and *POST* examples above:
+
+   ```json
+   complain={
+     "title" : "Complaint 4",
+     "description" : "I am the fourth complaint",
+     "locale" : {
+       "address": "Av. Paulista, 1500",
+       "complement": "3rd floor, room 345",
+       "vicinity": "Bela Vista",
+       "zip": "01310-100",
+       "city": "São Paulo",
+       "state": "SP",
+       "country": "Brazil"
+     },
+     "company" : "Damage Inc."
+   }
+   ```
+
+
+
+Of course, these are `curl`-based examples of usage, and the user should call the API methods according to the REST conventions of the client language or application.
 
 ### Querying with the GET method
 
 asdasdasdsad
 
+### Working with Geolocation and Distance Range queries
+
+sadasdsad
+
+
+
 ### Dockerized version
 
-asdasdasdasdasd
+
+
+```bash
+$ docker run -p80:80 afmartins/complain_api_app
+```
 
 
 
@@ -123,13 +198,20 @@ asdasdasdasdasd
 
 There are still some functionalities we wish to improve further:
 
-- Decouple the main routing and HTTP servicing engine from the database engine in two separate, more loosely coupled microservices. This can improve overall system scalability. 
+- Include attributes such *created_at: <timestamp>* and *complainer_name: <string>*
+- Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data.
 
 
 
+----
 
+
+
+[geojson_link]:http://geojson.org/
 [docker_link]:http://hub.docker.com/afmartins/xxx
 [github_link]:https://github.com/alessandro-f-martins/complaint_api_app
 [postman_link]:https://www.getpostman.com/apps
 [flask-restful_link]:https://flask-restful.readthedocs.io/en/latest/
 [flask-pymongo_link]:http://flask-pymongo.readthedocs.io/en/latest/
+
+[flas]: 
