@@ -291,7 +291,7 @@ The result from the related query is:
 
 , which, by accident, matches the geolocation of the *XXXX Audio Systems* store, in Sacramento, CA, USA.
 
-This behavior makes it extremely difficult (if not impossible) to apply correct exception handling in the case of wrong addresses, so assuring the correct address in needed *before* calling the related *POST*, *PUT* or *PATCH* methods.   
+This behavior makes it extremely difficult (if not impossible) to apply correct exception handling in the case of wrong addresses, so assuring the correct address is needed *before* calling the related *POST*, *PUT* or *PATCH* methods, by the client code or application.
 
 
 
@@ -313,8 +313,12 @@ This image was built using the provided *Dockerfile*. It is self-contained for t
 There are still some functionalities we wish to improve further:
 
 - Include attributes such *created_at: <timestamp>* and *complainer_name: <string>*.
+
 - Allow modification of *locale* single attributes when using *PATCH* method.
+
 - Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Services with Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data. Please feel free to change the provided *Dockerfile* accordingly.
+
+  
 
 ----
 
