@@ -232,6 +232,8 @@ As mentioned, there are three query modes that can be made with the query string
 
 Please refer to *The complain module and REST functionalities* section for usage examples.
 
+
+
 ### Working with Geolocation
 
 *Complaint API Application* uses Google Maps API to get the geographic coordinates of a complaint and, as such, relies on the availability of this service to provide this functionality.
@@ -244,6 +246,52 @@ You can activate/deactivate the geolocation functionality in the configuration f
 export USE_GEOLOC=1  # --> change it to 0 to deactivate geolocation
 ```
 **_NOTE_**: in the present version, modifying any *locale* attribute requires the whole *locale* sub-document to be rewritten and sent (see *Under work* section).
+
+#### Handling address mistakes
+
+When retrieving the [longitude, latitude] values of a query Google Maps API tries to identify the geographic center of the ***minimal coherent fragment*** of the full provided address, from the smallest identifiable region to the largest. For instance, if the provided query has the following content:
+
+```json
+locale: {
+  "address": "xxxx",
+  "complement": "",
+  "vicinity": "Morumbi",
+  "zip": "12345-123",
+  "city": "São Paulo",
+  "state": "SP",
+  "country": "Brasil"
+}
+```
+
+, the Google Maps API will ignore the *address* attribute and provide the coordinates of the geographic center of São Paulo City:
+
+```json
+{'lat': -23.5505199, 'lng': -46.63330939999999}
+```
+
+If all relevant query attributes are incorrect, the result is a spurious, but syntactically valid geolocation, resulting from the attempt to find a *Point of Interest* whose name matches the incorrect string:
+
+```json
+locale: {
+  "address": "xxxx",
+  "complement": "",
+  "vicinity": "Morumbi",
+  "zip": "12345-123",
+  "city": "xxxxx",
+  "state": "xxxx",
+  "country": "xxxx"
+}
+```
+
+The result from the related query is:
+
+```json
+{'lat': 38.573334, 'lng': -121.507788}
+```
+
+, which, by accident, matches the geolocation of the *XXXX Audio Systems* store, in Sacramento, CA, USA.
+
+This behavior makes it extremely difficult (if not impossible) to apply correct exception handling in the case of wrong addresses, so assuring the correct address in needed *before* calling the related *POST*, *PUT* or *PATCH* methods.   
 
 
 
