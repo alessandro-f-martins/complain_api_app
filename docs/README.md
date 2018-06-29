@@ -13,7 +13,7 @@ This is an application for submission to ***Reclame Aqui,*** which consists on a
 - Exact and "*like*" searches can be combined 
 - Google Maps- and MongoDB native-based geolocation capabilities
 - JSON-based document format, MongoDB-based persistence
-- Dockerfile for building containerized application. A link to an example container can be found [here][docker_link]
+- Dockerfile for building containerized application. 
 
 
 
@@ -275,7 +275,6 @@ There are still some functionalities we wish to improve further:
 
 
 [geojson_link]:http://geojson.org/
-[docker_link]:http://hub.docker.com/afmartins/xxx
 [github_link]:https://github.com/alessandro-f-martins/complaint_api_app
 [postman_link]:https://www.getpostman.com/apps
 [flask-restful_link]:https://flask-restful.readthedocs.io/en/latest/
