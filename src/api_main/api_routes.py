@@ -25,7 +25,7 @@ def before_first_request():
     if not api_db.db.complains_seq.find_one({'_id': 'complain_id'}):
         api_db.db.complains_seq.insert_one({'_id': 'complain_id',
                                             'seq_value': 1})
-    # Creatiing geolocalization index
+    # Creating geolocalization index
     api_db.db.complains.create_index([('locale.geo_location', GEOSPHERE)])
 
 

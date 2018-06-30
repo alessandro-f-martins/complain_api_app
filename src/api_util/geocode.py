@@ -47,6 +47,7 @@ def nearby_complains_query(complain_id, radius):
         <complain_id> was issued.
     '''
     if Config.USE_GEOLOC:
+        qry = {'$and': []}
         complain_geoloc = api_db.db.complains.find_one(
             {'complain_id': int(complain_id)},
             projection={'_id': False, 'locale.geo_location': True})
@@ -56,9 +57,16 @@ def nearby_complains_query(complain_id, radius):
         # measurement radius must be given in radians, convertion to meters is
         # needed, dividing search radius by the Earth's radius.
         if complain_geoloc:
-            return {'locale.geo_location':
-                    {'$geoWithin':
-                     {'$centerSphere':
-                      [complain_geoloc['locale']['geo_location']
-                       ['coordinates'], float(radius)/_EARTH_RADIUS]}}}
+            qry['$and'].append({'locale.geo_location':
+                                {'$geoWithin':
+                                 {'$centerSphere':
+                                  [complain_geoloc['locale']['geo_location']
+                                   ['coordinates'],
+                                   float(radius)/_EARTH_RADIUS]
+                                  }
+                                 }
+                                })
+            # Excludes the complaint itself from the results
+            qry['$and'].append({"complain_id": {"$ne": int(complain_id)}})
+            return qry
     return {}

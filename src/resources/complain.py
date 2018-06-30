@@ -250,14 +250,7 @@ class ComplainList(Resource):
                   message='There was a problem with your request. Please check.')
 
         for result in complain_results:
-            if not id:
-                # Non-range query (exact or partial match)
-                ret.append(result)
-            elif result['complain_id'] != int(id):
-                # In a distance range query, excludes the given complaint
-                # document itself from the list, as it is already given as
-                # the center of the search
-                ret.append(result)
+            ret.append(result)
 
         log.log_msg('Reclamacoes obtidas: %s' % ret)
         return ret
