@@ -2,7 +2,7 @@
 
 Author: Alessandro F. Martins
 
-Version: 0.1b 
+Version: 0.1b
 
 ## Introduction
 
@@ -10,10 +10,10 @@ This is an application for submission to ***Reclame Aqui,*** which consists on a
 
 - Full CRUD capabilities: create, read, update and delete complaints
 - Three search modes for the GET method: exact match, "*like*" match (using parts of the desired attribute value, case insensitive) and distance range search
-- Exact and "*like*" searches can be combined 
+- Exact and "*like*" searches can be combined
 - Google Maps- and MongoDB native-based geolocation capabilities
 - JSON-based document format, MongoDB-based persistence
-- Dockerfile for building containerized application. 
+- Dockerfile for building containerized application.
 
 
 
@@ -21,16 +21,16 @@ This is an application for submission to ***Reclame Aqui,*** which consists on a
 
 ### Prerequisites
 
-The following software was used in the elaboration of this application: 
+The following software was used in the elaboration of this application:
 
 - Python 3.6.5
 - pip 10.0.1
 - Nginx 1.14.0
-- virtualenv 16.0.0 (plain version) 
+- virtualenv 16.0.0 (plain version)
 - MongoDB 3.6.5 (plain version) and 3.4.1 (dockerized version)
 - Linux: Ubuntu 18.01 (plain version) and Alpine 3.7 (dockerized version)
 
-Python packages versions used in Complant API application can be found in the *requirements.txt* file. 
+Python packages versions used in Complaint API application can be found in the *requirements.txt* file. 
 
 
 
@@ -56,7 +56,7 @@ Python packages versions used in Complant API application can be found in the *r
 
    - `app_vars.cfg`:
      ```bash
-     line 1: # . ../../venv/bin/activate # --> change it to point to the 'activate' script of your virtual environment 
+     line 1: # . ../../venv/bin/activate # --> change it to point to the 'activate' script of your virtual environment
      ```
    - `runApp.sh`:
      ```bash
@@ -238,7 +238,7 @@ Please refer to *The complain module and REST functionalities* section for usage
 
 *Complaint API Application* uses Google Maps API to get the geographic coordinates of a complaint and, as such, relies on the availability of this service to provide this functionality.
 
-The latitude and longitude values are obtained from a concatenation of the *locale.address* , *locale.city*, *locale.state* and , *locale.country* attributes, so they are the only relevant ones for geolocation determination. 
+The latitude and longitude values are obtained from a concatenation of the *locale.address* , *locale.city*, *locale.state* and , *locale.country* attributes, so they are the only relevant ones for geolocation determination.
 
 You can activate/deactivate the geolocation functionality in the configuration files (please see *Configuration*):
 
@@ -318,7 +318,7 @@ There are still some functionalities we wish to improve further:
 
 - Currently, the dockerized application provided as example keeps everything inside its own container, including its database files, as it is meant for testing. In a production environment, Docker Services with Docker Volumes should be used, so data may be persisted and multiple containerized instances of the application may persist and have access to the data. Please feel free to change the provided *Dockerfile* accordingly.
 
-  
+
 
 ----
 
